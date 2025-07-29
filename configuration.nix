@@ -36,7 +36,7 @@
     open = false;
     nvidiaSettings = true;
     prime = {
-      #offload.enable = false;  # Nvidia как основная
+      #offload.enable = false;
       sync.enable = true;
       #allowExternalGpu = true;
       intelBusId = "PCI:0:2:0";
