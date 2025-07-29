@@ -2,7 +2,7 @@
 
 {
   imports = [ 
-  /etc/nixos/hardware-configuration.nix 
+  ./hardware-configuration.nix 
   ];
     
   system.stateVersion = "25.05";
@@ -23,11 +23,11 @@
   services.xserver = {
     enable = true;
     videoDrivers = [ "nvidia" ];
+    displayManager.gdm.enable = true;
+    desktopManager.gnome.enable = true;
     xkb.layout = "us,ru";
     xkb.options = "grp:win_alt_toggle";
   };
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
 
   # Настройки NVIDIA
   hardware.nvidia = {
@@ -36,10 +36,11 @@
     open = false;
     nvidiaSettings = true;
     prime = {
-      offload.enable = false;  # Nvidia как основная
-      allowExternalGpu = true;
-      #intelBusId = "PCI:0:2:0";
-      #nvidiaBusId = "PCI:1:0:0";
+      #offload.enable = false;  # Nvidia как основная
+      sync.enable = true;
+      #allowExternalGpu = true;
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
     };
   };
 
@@ -93,5 +94,7 @@
     popsicle
     pavucontrol
     virt-manager
+    autorandr
+    python3Full
   ];
 }
