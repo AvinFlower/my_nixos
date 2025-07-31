@@ -2,13 +2,13 @@
   disko.devices = {
     disk = {
       main = {
-        device = "/dev/vdb";
+        device = "/dev/nvme0n1";
         type = "disk";
         content = {
           type = "gpt";
           partitions = {
             ESP = {
-              size = "500M";
+              size = "512M";
               type = "EF00";
               content = {
                 type = "filesystem";
@@ -18,7 +18,7 @@
               };
             };
             root = {
-              end = "-1G";
+              end = "-8G";
               content = {
                 type = "filesystem";
                 format = "ext4";
