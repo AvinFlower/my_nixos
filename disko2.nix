@@ -18,6 +18,7 @@
               };
             };
             root = {
+              label = "disk-main-root"
               end = "-8G";
               content = {
                 type = "filesystem";
@@ -34,6 +35,7 @@
               };
             };
             plainSwap = {
+              label = "swap";
               size = "100%";
               content = {
                 type = "swap";
