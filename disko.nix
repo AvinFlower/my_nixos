@@ -18,11 +18,11 @@
             };
 
             swap = {
+              label = "swap";
               size = "8G";
               content = {
                 type = "swap";
                 resumeDevice = true;
-                label = "swap";
               };
             };
 
