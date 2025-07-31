@@ -22,6 +22,7 @@
               content = {
                 type = "swap";
                 resumeDevice = true;
+                label = "swap";
               };
             };
 
