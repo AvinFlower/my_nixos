@@ -5,8 +5,7 @@
     content = {
       type = "gpt";
       partitions = {
-        ESP = {
-          index = 1;
+        "01-ESP" = {
           size  = "512M";
           type  = "EF00";
           content = {
@@ -16,8 +15,7 @@
             mountOptions = [ "umask=0077" ];
           };
         };
-        root = {
-          index = 2;
+        "02-root" = {
           end   = "-2G";
           content = {
             type       = "filesystem";
@@ -25,8 +23,7 @@
             mountpoint = "/";
           };
         };
-        encryptedSwap = {
-          index = 3;
+        "03-encryptedSwap" = {
           size  = "10M";
           content = {
             type             = "swap";
@@ -34,8 +31,7 @@
             priority         = 100;
           };
         };
-        plainSwap = {
-          index = 4;
+        "04-plainSwap" = {
           size  = "100%";
           content = {
             type           = "swap";
