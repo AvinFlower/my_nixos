@@ -8,6 +8,7 @@
           type = "gpt";
           partitions = {
             ESP = {
+              index = 1;
               size = "512M";
               type = "EF00";
               content = {
@@ -18,8 +19,8 @@
               };
             };
             root = {
-              label = "disk-main-root"
-              end = "-8G";
+              index = 2;
+              end = "-6G";
               content = {
                 type = "filesystem";
                 format = "ext4";
@@ -27,6 +28,7 @@
               };
             };
             encryptedSwap = {
+              index = 3;
               size = "10M";
               content = {
                 type = "swap";
@@ -35,6 +37,7 @@
               };
             };
             plainSwap = {
+              index = 4;
               label = "swap";
               size = "100%";
               content = {
