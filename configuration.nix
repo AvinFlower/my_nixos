@@ -48,7 +48,10 @@
     xserver = {
       enable = true;
       videoDrivers = [ "nvidia" ];
-      displayManager.gdm.enable = true;
+      displayManager.gdm = {
+        enable = true;
+        wayland = false;
+      };
       desktopManager.gnome.enable = true;
       excludePackages = with pkgs; [ xterm ];
       xkb.layout = "us,ru";
@@ -95,7 +98,7 @@
     firefox.enable = true;
     steam = {
       enable = true;
-      gamescopeSession.enable = true;
+      gamescopeSession.enable = false;
     };
     gamemode.enable = true;
   };
@@ -132,20 +135,20 @@
       bottles
     
       gnomeExtensions.appindicator
-      gnomeExtensions.gsconnect
+      #gnomeExtensions.gsconnect
+      gnomeExtensions.soft-brightness-plus
       gnomeExtensions.translate-clipboard
-      gnomeExtensions.brightness-control-using-ddcutil
-      gnomeExtensions.dock-from-dash
+      gnomeExtensions.dash-to-dock
       gnomeExtensions.blur-my-shell
-      gnomeExtensions.panel-corners
       gnomeExtensions.arcmenu
       gnomeExtensions.compiz-windows-effect
       gnomeExtensions.burn-my-windows
       gnomeExtensions.desktop-cube
       gnomeExtensions.just-perfection
-      gnomeExtensions.quick-settings-tweaker
-      gnomeExtensions.forge
-      gnomeExtensions.pop-shell  
+      gnomeExtensions.paperwm
+      gnomeExtensions.translate-clipboard
+      gnomeExtensions.vitals
+      gnomeExtensions.unblank
     ];
     
     sessionVariables = {
