@@ -50,6 +50,7 @@
       videoDrivers = [ "nvidia" ];
       displayManager.gdm.enable = true;
       desktopManager.gnome.enable = true;
+      excludePackages = with pkgs; [ xterm ];
       xkb.layout = "us,ru";
       xkb.options = "grp:win_alt_toggle";
     };
@@ -118,8 +119,7 @@
       onlyoffice-bin
       telegram-desktop
       p7zip 
-      anydesk 
-      xterm 
+      anydesk
       popsicle
       pavucontrol
       virt-manager
@@ -164,7 +164,6 @@
       geary
       seahorse
       gnome-tour
-      xterm
       gnome-characters
       gnome-contacts
       gnome-maps
