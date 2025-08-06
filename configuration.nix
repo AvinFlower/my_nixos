@@ -14,6 +14,7 @@
     };
   
     kernelPackages = pkgs.linuxPackages_latest;
+    initrd.kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_drm" "nvidia_uvm" ];
   };
 
   networking = {
@@ -32,9 +33,14 @@
     nvidia = {
       modesetting.enable = true;
       powerManagement.enable = true;
+      package = config.boot.kernelPackages.nvidiaPackages.latest;
       open = false;
       nvidiaSettings = true;
       prime = {
+        # offload = {
+        #   enable = true;
+        #   enableOffloadCmd = true;
+        # };
         sync.enable = true;
         nvidiaBusId = "PCI:1:0:0";
         intelBusId = "PCI:0:2:0";
@@ -71,13 +77,13 @@
       pulse.enable = true;
       audio.enable = true;
     };
-  };  
+  };
   
-  security.rtkit.enable = true;
-  virtualisation.libvirtd.enable = true;
-
   systemd.services."getty@tty1".enable = false;
   systemd.services."autovt@tty1".enable = false;
+
+  security.rtkit.enable = true;
+  virtualisation.libvirtd.enable = true;
 
   users.users.vanish = {
     isNormalUser = true;
@@ -95,6 +101,8 @@
   ];
   
   programs = {
+    #zen-browser.enable = true;
+    #nano.enable = false;
     firefox.enable = true;
     steam = {
       enable = true;
@@ -114,28 +122,34 @@
 
   environment = {
     systemPackages = with pkgs; [
-      wget 
-      nix-search-cli 
-      git 
       vscode
       v2rayn 
       onlyoffice-bin
       telegram-desktop
-      p7zip 
+      file-roller
+      unrar
       anydesk
       popsicle
-      pavucontrol
       virt-manager
-      autorandr
-      python3Full
+      qbittorrent
+
       neofetch
+      blackbox-terminal
+      autorandr
+      pavucontrol
+      wget 
+      nix-search-cli 
+      git
+      python3Full
+
       mangohud
       protonup
       lutris
       bottles
+      heroic
+      mangojuice
     
       gnomeExtensions.appindicator
-      #gnomeExtensions.gsconnect
       gnomeExtensions.soft-brightness-plus
       gnomeExtensions.translate-clipboard
       gnomeExtensions.dash-to-dock
@@ -153,6 +167,10 @@
     
     sessionVariables = {
       STEAM_EXTRA_COMPAT_TOOLS_PATHS = "\${HOME}/.steam/root/compatibilitytools.d";
+    };
+    
+    variables = {
+      VK_ICD_FILENAMES = "/nix/store/8pdixnksig7hy76dhc727mblw329cx7q-nvidia-x11-570.153.02-6.16/share/vulkan/icd.d/nvidia_icd.x86_64.json";
     };
     
     gnome.excludePackages = with pkgs; [
@@ -176,4 +194,41 @@
       gnome-connections
     ];
   };
+
+  fonts = {
+    packages = with pkgs; [
+      jetbrains-mono
+    ];
+
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        monospace = [ "JetBrains Mono" ];
+      };
+    };
+  };
+  
+  nix = {
+    gc = {
+      automatic = true;
+      dates = "daily";         # расписание: daily/weekly/monthly
+      options = "--delete-older-than 10d";  # удалять всё старше 10 дней
+    };
+    settings.auto-optimise-store = true;
+  
+  };
+  
+  system.autoUpgrade = {
+    enable = true;
+    dates = "weekly";
+  };
+ 
+  
+  systemd.tmpfiles.rules = [
+    # /tmp: удалять всё старше 1 дня
+    "d /tmp 1777 root root 1d"
+    # /var/tmp: удалять всё старше 7 дней
+    "d /var/tmp 1777 root root 7d"
+  ];
+
 }
