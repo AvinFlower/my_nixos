@@ -9,12 +9,26 @@
   
   boot = {
     loader = {
-      systemd-boot.enable = true;
+      systemd-boot = {
+        enable = true;
+        configurationLimit = 5;
+      };
       efi.canTouchEfiVariables = true;
     };
+
+    # kernelParams = [
+    #   "intel_iommu=on"
+    #   "iommu=pt"
+    #   "vfio-pci.ids=10de:2520,10de:228e"
+    # ];
   
     kernelPackages = pkgs.linuxPackages_latest;
-    initrd.kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_drm" "nvidia_uvm" ];
+    initrd = {
+      kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_drm" "nvidia_uvm" ];
+      #kernelModules = [ "vfio_pci" "vfio" "vfio_iommu_type1" ];
+    };
+
+    #blacklistedKernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" "nouveau" ];
   };
 
   networking = {
@@ -49,11 +63,16 @@
 
     bluetooth.enable = false;
   };
+  hardware = {
+    graphics.enable = true;
+    graphics.enable32Bit = true;
+  };
         
   services = {
     xserver = {
       enable = true;
       videoDrivers = [ "nvidia" ];
+      # videoDrivers = [ "intel" ];
       displayManager.gdm = {
         enable = true;
         wayland = false;
@@ -61,7 +80,6 @@
       desktopManager.gnome.enable = true;
       excludePackages = with pkgs; [ xterm ];
       xkb.layout = "us,ru";
-      xkb.options = "grp:win_alt_toggle";
     };
     
     displayManager.autoLogin = {
@@ -83,7 +101,12 @@
   systemd.services."autovt@tty1".enable = false;
 
   security.rtkit.enable = true;
-  virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu.ovmf.enable = true;
+    qemu.ovmf.packages = [ pkgs.OVMF.fd ];
+    qemu.package = pkgs.qemu_kvm; # или qemu_full, если нужен весь функционал
+  };
 
   users.users.vanish = {
     isNormalUser = true;
@@ -91,14 +114,18 @@
     initialPassword = "oxi-action";
   };
   
-  security.sudo.extraRules = [
-    { 
-      users = [ "vanish" ];
-      commands = [
-        { command = "ALL"; options = [ "NOPASSWD" ]; }
-      ];
-    }
-  ];
+  security.sudo = {
+    enable = true;
+    wheelNeedsPassword = false;
+    extraRules = [
+      {
+        users = [ "vanish" ];
+        commands = [
+          { command = "ALL"; options = [ "NOPASSWD" ]; }
+        ];
+      }
+    ];
+  }; 
   
   programs = {
     #zen-browser.enable = true;
@@ -130,8 +157,12 @@
       unrar
       anydesk
       popsicle
-      virt-manager
       qbittorrent
+
+      virt-manager
+      virt-viewer
+      OVMF
+      qemu
 
       neofetch
       blackbox-terminal
@@ -141,11 +172,13 @@
       nix-search-cli 
       git
       python3Full
+      samba
 
       mangohud
       protonup
       lutris
       bottles
+      wine
       heroic
       mangojuice
     
@@ -208,26 +241,26 @@
     };
   };
   
-  nix = {
-    gc = {
-      automatic = true;
-      dates = "daily";         # расписание: daily/weekly/monthly
-      options = "--delete-older-than 10d";  # удалять всё старше 10 дней
-    };
-    settings.auto-optimise-store = true;
-  
+  # 1) Автоматический GC Nix store и оптимизация
+  nix.gc = {
+    automatic = true;
+    dates = "daily";
+    options = "";
   };
-  
+
+  # 2) Автообновления системы
   system.autoUpgrade = {
+    # Включить сервис auto-upgrade
     enable = true;
+    # Как часто проверять и обновлять: daily, weekly или monthly
     dates = "weekly";
   };
- 
-  
+
+  # 3) Очистка временных директорий через tmpfiles
   systemd.tmpfiles.rules = [
-    # /tmp: удалять всё старше 1 дня
+    # /tmp: удалять файлы старше 1 дня
     "d /tmp 1777 root root 1d"
-    # /var/tmp: удалять всё старше 7 дней
+    # /var/tmp: удалять файлы старше 7 дней
     "d /var/tmp 1777 root root 7d"
   ];
 
