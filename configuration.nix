@@ -141,6 +141,7 @@
     allowUnfree = true;
     permittedInsecurePackages = [
       "freeimage-3.18.0-unstable-2024-04-18"
+      "ventoy-1.1.05"
     ];
   };
 
@@ -155,6 +156,7 @@
       anydesk
       popsicle
       qbittorrent
+      ventoy
 
       virt-manager
       virt-viewer
@@ -259,13 +261,12 @@
   };
 
   systemd.timers."nix-store-optimize" = {
+    enable = true;
     wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "weekly";  # Оптимизировать раз в неделю
       Persistent = true;
     };
-    unit = "nix-store-optimize.service";
-    enable = true;
   };
 
   systemd.tmpfiles.rules = [
