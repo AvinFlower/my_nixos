@@ -9,10 +9,7 @@
   
   boot = {
     loader = {
-      systemd-boot = {
-        enable = true;
-        configurationLimit = 5;
-      };
+      systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
 
@@ -63,10 +60,10 @@
 
     bluetooth.enable = false;
   };
-  hardware = {
-    graphics.enable = true;
-    graphics.enable32Bit = true;
-  };
+  # hardware = {
+  #   graphics.enable = true;
+  #   graphics.enable32Bit = true;
+  # };
         
   services = {
     xserver = {
@@ -241,27 +238,52 @@
     };
   };
   
-  # 1) Автоматический GC Nix store и оптимизация
   nix.gc = {
-    automatic = true;
-    dates = "daily";
-    options = "";
+    automatic = true;          # Включить автоматическую очистку
+    dates = "daily";           # Запускать ежедневно
+    options = "--delete-older-than 30d";  # Удалять старые поколения старше 30 дней
   };
 
-  # 2) Автообновления системы
-  system.autoUpgrade = {
-    # Включить сервис auto-upgrade
+  systemd.timers."nix-collect-garbage" = {
+    enable = true;             # Включить systemd таймер для очистки
+    timerConfig.OnCalendar = "daily";  # Периодичность - каждый день
+  };
+
+  systemd.services."nix-store-optimize" = {
+    description = "Optimize Nix store by deduplicating paths";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.nix}/bin/nix-store --optimise";
+    };
+  };
+
+  systemd.timers."nix-store-optimize" = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "weekly";  # Оптимизировать раз в неделю
+      Persistent = true;
+    };
+    unit = "nix-store-optimize.service";
     enable = true;
-    # Как часто проверять и обновлять: daily, weekly или monthly
-    dates = "weekly";
   };
 
-  # 3) Очистка временных директорий через tmpfiles
   systemd.tmpfiles.rules = [
-    # /tmp: удалять файлы старше 1 дня
     "d /tmp 1777 root root 1d"
-    # /var/tmp: удалять файлы старше 7 дней
-    "d /var/tmp 1777 root root 7d"
+    "d /var/tmp 1777 root root 3d"
+    # Можно добавить очистку корзины
+    "r! /home/*/.local/share/Trash/files/* - - - - 3d"
   ];
 
+  services.journald = {
+    extraConfig = ''
+      SystemMaxUse=200M
+      MaxFileSec=7d
+    '';
+  };
+
+  system.autoUpgrade = {
+    enable = true;
+    dates = "weekly";  # обновление раз в неделю
+  };
 }
