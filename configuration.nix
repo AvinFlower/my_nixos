@@ -1,4 +1,11 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
+
+let
+  unstable = import inputs.unstable {
+    system = pkgs.system;
+    config.allowUnfree = true;
+  };
+in
 
 {
   imports = [ 
@@ -66,6 +73,8 @@
   # };
         
   services = {
+    flatpak.enable = true;
+
     xserver = {
       enable = true;
       videoDrivers = [ "nvidia" ];
@@ -147,16 +156,15 @@
 
   environment = {
     systemPackages = with pkgs; [
-      vscode
+      unstable.vscode
       v2rayn 
       onlyoffice-bin
       telegram-desktop
-      file-roller
-      unrar
       anydesk
-      popsicle
       qbittorrent
-      ventoy
+      gnome-multi-writer
+      woeusb
+      peazip
 
       virt-manager
       virt-viewer
@@ -270,8 +278,18 @@
   };
 
   systemd.tmpfiles.rules = [
-    "d /tmp 1777 root root 1d"
-    "d /var/tmp 1777 root root 3d"
+    # Полная перезапись правил для /tmp
+    "D! /tmp 1777 root root 1d"
+    
+    # Полная перезапись правил для /var/tmp
+    "D! /var/tmp 1777 root root 7d"
+    
+    # Дополнительные правила очистки
+    "e /tmp/.X11-unix - - - - -"
+    "e /tmp/.ICE-unix - - - - -"
+    "r! /tmp/* - - - - 1d"
+    "r! /var/tmp/* - - - - 7d"
+
     # Можно добавить очистку корзины
     "r! /home/*/.local/share/Trash/files/* - - - - 3d"
   ];
